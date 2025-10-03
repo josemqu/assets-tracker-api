@@ -1,0 +1,781 @@
+{
+	"info": {
+		"_postman_id": "investment-tracker-api",
+		"name": "Investment Tracker API",
+		"description": "API Backend para Chrome Extension Investment Tracker\n\n**Base URL Production**: https://assets-tracker-api.up.railway.app\n**Base URL Local**: http://localhost:8000\n\nPara usar esta colección:\n1. Ejecuta el endpoint de Register o Login\n2. El token se guardará automáticamente\n3. Los demás endpoints usarán el token automáticamente",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set(\"auth_token\", jsonData.token);",
+									"        pm.environment.set(\"user_id\", jsonData.userId);",
+									"        console.log(\"Token guardado:\", jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\",\n    \"name\": \"Test User\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Registrar un nuevo usuario. El token JWT se guarda automáticamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.token) {",
+									"        pm.environment.set(\"auth_token\", jsonData.token);",
+									"        pm.environment.set(\"user_id\", jsonData.userId);",
+									"        console.log(\"Token guardado:\", jsonData.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Iniciar sesión. El token JWT se guarda automáticamente."
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Token",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/auth/validate",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"validate"
+							]
+						},
+						"description": "Validar si el token JWT es válido."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Investments",
+			"item": [
+				{
+					"name": "Get All Investments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/investments?limit=100&offset=0",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "100"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "entity",
+									"value": "Banco Nación",
+									"disabled": true
+								},
+								{
+									"key": "dateFrom",
+									"value": "1704067200000",
+									"disabled": true
+								},
+								{
+									"key": "dateTo",
+									"value": "1735689599000",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Obtener todas las inversiones del usuario. Soporta filtros opcionales: entity, dateFrom, dateTo, limit, offset."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Investment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"timestamp\": 1704067200000,\n    \"entidad\": \"Banco Nación\",\n    \"monto_ars\": 150000.50,\n    \"monto_usd\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/investments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments"
+							]
+						},
+						"description": "Crear o actualizar una inversión. Si ya existe para ese día y entidad, se actualiza."
+					},
+					"response": []
+				},
+				{
+					"name": "Bulk Create Investments",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"records\": [\n        {\n            \"timestamp\": 1704067200000,\n            \"entidad\": \"Banco Nación\",\n            \"monto_ars\": 150000.50,\n            \"monto_usd\": null\n        },\n        {\n            \"timestamp\": 1704153600000,\n            \"entidad\": \"Mercado Pago\",\n            \"monto_ars\": 45000.00,\n            \"monto_usd\": null\n        },\n        {\n            \"timestamp\": 1704240000000,\n            \"entidad\": \"Brubank\",\n            \"monto_ars\": null,\n            \"monto_usd\": 1000.00\n        }\n    ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/investments/bulk",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments",
+								"bulk"
+							]
+						},
+						"description": "Crear múltiples inversiones en una sola petición. Ideal para sincronización."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Investment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"monto_ars\": 160000.00,\n    \"monto_usd\": null\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/investments/:investment_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments",
+								":investment_id"
+							],
+							"variable": [
+								{
+									"key": "investment_id",
+									"value": "YOUR_INVESTMENT_ID"
+								}
+							]
+						},
+						"description": "Actualizar una inversión específica por ID."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Investment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/investments/:investment_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments",
+								":investment_id"
+							],
+							"variable": [
+								{
+									"key": "investment_id",
+									"value": "YOUR_INVESTMENT_ID"
+								}
+							]
+						},
+						"description": "Eliminar una inversión específica."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete All Investments",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/investments",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"investments"
+							]
+						},
+						"description": "⚠️ Eliminar TODAS las inversiones del usuario. Usar con precaución."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Config Sites",
+			"item": [
+				{
+					"name": "Get All Config Sites",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/config/sites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config",
+								"sites"
+							]
+						},
+						"description": "Obtener todas las configuraciones de sitios web."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Config Site",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Banco Nación\",\n    \"urlPattern\": \"https://hb.redlink.com.ar/*\",\n    \"selectors\": {\n        \"ars\": \".saldo-total\",\n        \"usd\": null\n    },\n    \"investment\": \"Plazo Fijo\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/config/sites",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config",
+								"sites"
+							]
+						},
+						"description": "Crear una nueva configuración de sitio web."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Config Site",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"selectors\": {\n        \"ars\": \".new-selector\",\n        \"usd\": \".usd-selector\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/config/sites/:site_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config",
+								"sites",
+								":site_id"
+							],
+							"variable": [
+								{
+									"key": "site_id",
+									"value": "YOUR_SITE_ID"
+								}
+							]
+						},
+						"description": "Actualizar una configuración de sitio existente."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Config Site",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/config/sites/:site_id",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"config",
+								"sites",
+								":site_id"
+							],
+							"variable": [
+								{
+									"key": "site_id",
+									"value": "YOUR_SITE_ID"
+								}
+							]
+						},
+						"description": "Eliminar una configuración de sitio."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Preferences",
+			"item": [
+				{
+					"name": "Get Preferences",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/user/preferences",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"preferences"
+							]
+						},
+						"description": "Obtener las preferencias del usuario."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Preferences",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"theme\": \"dark\",\n    \"autoReplication\": {\n        \"enabled\": true,\n        \"entities\": {\n            \"Banco Nación\": true,\n            \"Mercado Pago\": false\n        }\n    },\n    \"manualRecordReferences\": {\n        \"lastSync\": \"2024-01-15T12:00:00Z\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/user/preferences",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"preferences"
+							]
+						},
+						"description": "Actualizar preferencias del usuario."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Synchronization",
+			"item": [
+				{
+					"name": "Get Sync Status",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/sync/status",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"sync",
+								"status"
+							]
+						},
+						"description": "Obtener el estado de sincronización (última sync, cantidad de registros, etc)."
+					},
+					"response": []
+				},
+				{
+					"name": "Push Sync",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"investments\": [\n        {\n            \"timestamp\": 1704067200000,\n            \"entidad\": \"Banco Nación\",\n            \"monto_ars\": 150000.50,\n            \"monto_usd\": null\n        }\n    ],\n    \"configSites\": [\n        {\n            \"name\": \"Banco Nación\",\n            \"urlPattern\": \"https://hb.redlink.com.ar/*\",\n            \"selectors\": {\n                \"ars\": \".saldo-total\"\n            },\n            \"investment\": \"Plazo Fijo\"\n        }\n    ],\n    \"preferences\": {\n        \"theme\": \"dark\"\n    },\n    \"clientTimestamp\": \"2024-01-15T12:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/sync/push",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"sync",
+								"push"
+							]
+						},
+						"description": "Enviar datos locales al servidor (sincronización push)."
+					},
+					"response": []
+				},
+				{
+					"name": "Pull Sync",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/sync/pull?since=1704067200000",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"sync",
+								"pull"
+							],
+							"query": [
+								{
+									"key": "since",
+									"value": "1704067200000",
+									"description": "Timestamp desde cuando obtener cambios (opcional)"
+								}
+							]
+						},
+						"description": "Obtener cambios desde el servidor (sincronización pull). Opcionalmente filtrar por fecha."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Export & Import",
+			"item": [
+				{
+					"name": "Export All Data",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/export",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"export"
+							]
+						},
+						"description": "Exportar todos los datos del usuario (inversiones, configuraciones, preferencias)."
+					},
+					"response": []
+				},
+				{
+					"name": "Import Data (Merge)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"investments\": [\n            {\n                \"timestamp\": 1704067200000,\n                \"entidad\": \"Banco Nación\",\n                \"monto_ars\": 150000.50,\n                \"monto_usd\": null\n            }\n        ],\n        \"configSites\": [],\n        \"preferences\": {}\n    },\n    \"mode\": \"merge\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"import"
+							]
+						},
+						"description": "Importar datos en modo 'merge' (combinar con datos existentes)."
+					},
+					"response": []
+				},
+				{
+					"name": "Import Data (Replace)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"data\": {\n        \"investments\": [\n            {\n                \"timestamp\": 1704067200000,\n                \"entidad\": \"Banco Nación\",\n                \"monto_ars\": 150000.50,\n                \"monto_usd\": null\n            }\n        ],\n        \"configSites\": [],\n        \"preferences\": {}\n    },\n    \"mode\": \"replace\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/import",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"import"
+							]
+						},
+						"description": "⚠️ Importar datos en modo 'replace' (elimina todos los datos existentes y los reemplaza)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health & Root",
+			"item": [
+				{
+					"name": "Root",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								""
+							]
+						},
+						"description": "Endpoint raíz de la API."
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"health"
+							]
+						},
+						"description": "Verificar el estado del servidor."
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "https://assets-tracker-api.up.railway.app",
+			"type": "string"
+		}
+	]
+}
