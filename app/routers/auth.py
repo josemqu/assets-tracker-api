@@ -16,6 +16,12 @@ router = APIRouter()
 async def register(user: UserCreate):
     db = get_database()
     
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database connection not available"
+        )
+    
     # Verificar si el usuario existe
     existing = await db.users.find_one({"email": user.email})
     if existing:
@@ -51,6 +57,12 @@ async def register(user: UserCreate):
 @router.post("/login", response_model=UserResponse)
 async def login(credentials: UserLogin):
     db = get_database()
+    
+    if db is None:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Database connection not available"
+        )
     
     # Buscar usuario
     user = await db.users.find_one({"email": credentials.email})
