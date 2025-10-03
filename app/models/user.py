@@ -4,7 +4,7 @@ from typing import Optional, Dict, Any
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: str = Field(..., min_length=8)
+    password: str = Field(..., min_length=8, max_length=72)
     name: Optional[str] = None
 
 
